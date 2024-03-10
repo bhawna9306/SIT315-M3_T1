@@ -1,0 +1,52 @@
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DIM 1000 // Matrix dimension
+
+void matrix_multiply(int **A, int **B, int **C, int size) {
+    int i, j, k;
+    for (i = 0; i < size; i++) {
+        for (j = 0; j < size; j++) {
+            C[i][j] = 0;
+            for (k = 0; k < size; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+}
+
+int main(int argc, char *argv[]) {
+    int rank, size;
+    int **A, **B, **C;
+    
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    // Allocate memory for matrices A, B, and C
+    A = (int **)malloc(DIM * sizeof(int *));
+    B = (int **)malloc(DIM * sizeof(int *));
+    C = (int **)malloc(DIM * sizeof(int *));
+    for (int i = 0; i < DIM; i++) {
+        A[i] = (int *)malloc(DIM * sizeof(int));
+        B[i] = (int *)malloc(DIM * sizeof(int));
+        C[i] = (int *)malloc(DIM * sizeof(int));
+    }
+
+    // Initialize matrices A and B
+    for (int i = 0; i < DIM; i++) {
+        for (int j = 0; j < DIM; j++) {
+            A[i][j] = rand() % 10; // Random values between 0 and 9
+            B[i][j] = rand() % 10;
+        }
+    }
+
+   
+    matrix_multiply(A, B, C, DIM);
+
+  
+
+    MPI_Finalize();
+    return 0;
+}
